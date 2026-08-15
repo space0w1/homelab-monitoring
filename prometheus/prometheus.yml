@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus monitoring itself
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Proxmox VE cluster nodes (pokemon, proxmoxtwo - both in cluster
+  # prx-cluster-1), scraped through pve-exporter (blackbox-style: the
+  # exporter connects out to the real target named in the `target` param).
+  # Clustered nodes share one user/token database, so a single module in
+  # prometheus/pve.yml covers both - one static target per node so each
+  # gets its own node-level stats.
+  - job_name: pve
+    static_configs:
+      - targets: ["192.168.2.2", "192.168.2.50"]
+    metrics_path: /pve
+    params:
+      module: [default]
+      cluster: ["1"]
+      node: ["1"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: pve-exporter:9221
+
+  # Per-VM node_exporter targets, via file-based service discovery so hosts
+  # can be added/removed without restarting Prometheus.
+  # Install node_exporter on each VM and list it in prometheus/targets/vms.json.
+  - job_name: node
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/targets/vms.json
+        refresh_interval: 30s

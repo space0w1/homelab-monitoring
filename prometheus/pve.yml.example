@@ -1,0 +1,21 @@
+# Copy this file to prometheus/pve.yml and fill in the real token value.
+# prometheus/pve.yml is gitignored - never commit it.
+#
+# If your Proxmox nodes are members of the same cluster, their user/token
+# database is shared - one token here covers every node in the cluster, and
+# prometheus.yml just lists each node as its own scrape target.
+# (Standalone, non-clustered hosts each have their own local user database
+# instead - in that case add one named module per host here, and give each
+# target in prometheus.yml's `pve` job a label that maps to its module via
+# relabel_configs, e.g. __param_module.)
+#
+# Generate the token (on any cluster member, if clustered):
+#   pveum user add prometheus@pve
+#   pveum aclmod / -user prometheus@pve -role PVEAuditor
+#   pveum user token add prometheus@pve exporter -privsep 0
+
+default:
+  user: prometheus@pve
+  token_name: exporter
+  token_value: replace-with-token-secret
+  verify_ssl: false

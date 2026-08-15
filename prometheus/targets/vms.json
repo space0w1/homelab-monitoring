@@ -1,0 +1,18 @@
+[
+  {
+    "targets": ["192.168.2.100:9100"],
+    "labels": {
+      "env": "homelab",
+      "role": "k3s-master",
+      "pve_node": "pokemon"
+    }
+  },
+  {
+    "targets": ["192.168.2.101:9100", "192.168.2.102:9100", "192.168.2.103:9100"],
+    "labels": {
+      "env": "homelab",
+      "role": "k3s-worker",
+      "pve_node": "proxmoxtwo"
+    }
+  }
+]
